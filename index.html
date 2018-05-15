@@ -37,12 +37,18 @@
 .y.axis path{
 	display: none;
 }
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
 </style>
 <body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <script> 
-
+console.log(Date.parse('04 Dec 1995 00:12:00 GMT'));
+console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 	var positiveColor = '#38e88f';
 	var negativeColor = '#be2f3e';
 	var lineColor = '#be2f3e';
@@ -51,9 +57,10 @@
 	var width = 960 - margin.left - margin.right;
 	var height = 500 - margin.top - margin.bottom;
 
-	var timeFormat = d3.timeFormat("%d-%m");	
+	var timeFormat = d3.timeFormat("%d-%m");		
 	var parseDate  = d3.timeParse("%Y:%m");
 	var x = d3.scaleBand().range([0, width]).padding(0.1);
+	var x1 = d3.scaleTime().range([0,width]);
 
 	var y = d3.scaleLinear().range([height, margin.top]);
 	var y1 = d3.scaleLinear().range([height,margin.top]);  // y - axis for line chart
@@ -68,6 +75,7 @@
 
 	var centerLine = d3.axisTop(center).ticks(0);
 
+	var bisectDate = d3.bisector(function(d) { return d.lt; }).left;
 
 	// d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
 	d3.json("data2.json", function(error, data) {
@@ -88,7 +96,8 @@
 		data.forEach(function(d) {
 			var y0_positive = 0;
 			var y0_negative = 0;			
-			d.x = timeFormat(Date.parse(d.x));					
+			d.lt = Date.parse(d.x);
+			d.x = timeFormat(Date.parse(d.x));							
 			// d.components = keys.map(function(key) {
 			// 	if (d[key] >= 0) {
 			// 		return {key: key, y1: y0_positive, y0: y0_positive += d[key] };
@@ -102,10 +111,10 @@
 		var y_min = d3.min(data, function(d) { return d.z -5});
 		var y_max = d3.max(data, function(d) { return d.z +5});
 
-		var datestart = d3.min(data, function(d) { return parseDate(d.x); });
-		var dateend = d3.max(data, function(d) { return parseDate(d.x);});
+		// var datestart = d3.min(data, function(d) { return parseDate(d.x); });
+		// var dateend = d3.max(data, function(d) { return parseDate(d.x);});
 
-		// x.domain([datestart, dateend]);
+		// // x.domain([datestart, dateend]);
 		x.domain(data.map(function(d) { return d.x; }));	
 		y.domain([y_min, y_max]);
 		
@@ -113,11 +122,12 @@
 		var y1_max = d3.max(data,function(d){return d.y});
 
 		y1.domain([y1_min,y1_max]);
+		x1.domain(d3.extent(data, function(d) { return d.lt; }));
 
 		color.domain(keys);
 
 		var price_line = d3.line()
-			.x(function(d) { return x(d.x) + x.bandwidth()/2; })
+			.x(function(d) { return x(d.x)+x.bandwidth()/2})
 			.y(function(d) { return y1(d.y); });
 
 		var svg = d3.select("body").append("svg")
@@ -165,6 +175,50 @@
 		    .data([data])
 		    .attr("class", "line")
 		    .attr("d", price_line);
+
+    var focus = svg.append("g")
+        .attr("class", "focus")
+        .style("display", "none");
+
+    focus.append("line")
+        .attr("class", "x-hover-line hover-line")
+        .attr("y1", 0)
+        .attr("y2", height);
+
+    focus.append("line")
+        .attr("class", "y-hover-line hover-line")
+        .attr("x1", width)
+        .attr("x2", width);
+
+    focus.append('circle').attr('r',7).attr('fill','white');
+    focus.append("circle")
+        .attr("r", 5).attr('fill',lineColor).attr('stroke-opacity','0').attr('stroke','3').attr('stroke-width','3px');
+
+    focus.append("text")
+        .attr("x", 15)
+      	.attr("dy", ".31em");
+
+    svg.append("rect")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mouseover", function() { focus.style("display", null); })
+        .on("mouseout", function() { focus.style("display", "none"); })
+        .on("mousemove", mousemove);
+       
+    function mousemove() {           	    	
+      var x0 = x1.invert(d3.mouse(this)[0]);
+      
+      var i = bisectDate(data, x0, 1),
+          d0 = data[i - 1],
+          d1 = data[i],
+          d = x0 - x1(d0.lt) > x1(d1.lt) - x0 ? d1 : d0;
+      focus.attr("transform", "translate(" + (x(d.x)+x.bandwidth()/2) + "," + y1(d.y) + ")");
+      focus.select("text").text(function() { return d.y; });
+      focus.select(".x-hover-line").attr("y2", height - y1(d.y));
+      focus.select(".y-hover-line").attr("x2", width + width);
+    }		    
 	})
 
 </script>

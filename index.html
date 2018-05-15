@@ -52,8 +52,6 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <script> 
-console.log(Date.parse('04 Dec 1995 00:12:00 GMT'));
-console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 	var positiveColor = '#38e88f';
 	var negativeColor = '#be2f3e';
 	var lineColor = '#be2f3e';
@@ -84,18 +82,7 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 
 	d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
 	// d3.json("data2.json", function(error, data) {
-
 		data = data.slice(data.length - 125, data.length );
-
-		// data.sort()
-		var keys = d3.keys(data[0]);
-
-		// var keys = keys.filter(function(key) { 
-		// 	if (key !== "id" && key !== "diffusion" && key !== "date" && key !== "cfnai" && key !== "cfnai_ma3") {
-		// 		return key; 
-		// 	}  
-		// });
-
 
 		var keys = ['z'];
 		data.forEach(function(d) {

@@ -82,8 +82,8 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 
 	var bisectDate = d3.bisector(function(d) { return d.lt; }).left;
 
-	// d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
-	d3.json("data2.json", function(error, data) {
+	d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
+	// d3.json("data2.json", function(error, data) {
 
 		data = data.slice(data.length - 125, data.length );
 

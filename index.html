@@ -30,7 +30,7 @@
 	opacity: .4;
 }
 
-.negative_bar{
+.negative_bar,.x-hover-rect{
 	opacity: .4;
 }
 
@@ -41,6 +41,11 @@
 .overlay {
   fill: none;
   pointer-events: all;
+}
+
+.hover-line{
+    stroke: #be2f3e;
+    stroke-width: 1px;    
 }
 </style>
 <body>
@@ -73,7 +78,7 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 	var xAxis = d3.axisBottom(x).ticks(10).tickSizeOuter(0);
 	var yAxis = d3.axisLeft(y).tickSize(0);
 
-	var centerLine = d3.axisTop(center).ticks(0);
+	var centerLine = d3.axisTop(center).ticks(0).tickSize(0);
 
 	var bisectDate = d3.bisector(function(d) { return d.lt; }).left;
 
@@ -98,23 +103,12 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 			var y0_negative = 0;			
 			d.lt = Date.parse(d.x);
 			d.x = timeFormat(Date.parse(d.x));							
-			// d.components = keys.map(function(key) {
-			// 	if (d[key] >= 0) {
-			// 		return {key: key, y1: y0_positive, y0: y0_positive += d[key] };
-			// 	} else if (d[key] < 0) {
-			// 		return {key: key, y0: y0_negative, y1: y0_negative += d[key] };
-			// 	}
-			// })
 			d.z = + d.z;
 		})
 
 		var y_min = d3.min(data, function(d) { return d.z -5});
 		var y_max = d3.max(data, function(d) { return d.z +5});
-
-		// var datestart = d3.min(data, function(d) { return parseDate(d.x); });
-		// var dateend = d3.max(data, function(d) { return parseDate(d.x);});
-
-		// // x.domain([datestart, dateend]);
+			
 		x.domain(data.map(function(d) { return d.x; }));	
 		y.domain([y_min, y_max]);
 		
@@ -131,10 +125,10 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 			.y(function(d) { return y1(d.y); });
 
 		var svg = d3.select("body").append("svg")
-									.attr("width", width + margin.left + margin.right)
-									.attr("height", height + margin.top + margin.bottom)
-									.append("g")
-									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		svg.append("g")
 			.attr("class", "x axis")
@@ -149,12 +143,6 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
 			.attr("class", "centerline")
 			.attr("transform", "translate(0," + y(0) + ")")
 			.call(centerLine);
-
-		// var entry = svg.selectAll(".entry")
-		// 	.data(data)
-		// 	.enter().append("g")
-		// 	.attr("class", "g")
-		// 	.attr("transform", function(d) { return "translate(" + x(d.x) + ", 0)"; });
 
 		svg.selectAll("rect")
 			.data(data).enter()
@@ -180,26 +168,25 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
         .attr("class", "focus")
         .style("display", "none");
 
-    focus.append("line")
-        .attr("class", "x-hover-line hover-line")
-        .attr("y1", 0)
-        .attr("y2", height);
+    focus.append("rect")
+        .attr("class", "x-hover-rect")
+        .attr('x',0)
+        .attr('y',0)
+        .attr("width", 14)
+        .attr('fill',negativeColor)
+        .attr("height", height);
 
     focus.append("line")
         .attr("class", "y-hover-line hover-line")
-        .attr("x1", width)
+        .attr("x1", 0)
         .attr("x2", width);
 
-    focus.append('circle').attr('r',7).attr('fill','white');
+    focus.append('circle').attr('r',7).attr('fill',negativeColor).attr('fill-opacity','.2');
     focus.append("circle")
-        .attr("r", 5).attr('fill',lineColor).attr('stroke-opacity','0').attr('stroke','3').attr('stroke-width','3px');
-
-    focus.append("text")
-        .attr("x", 15)
-      	.attr("dy", ".31em");
+        .attr("r", 4).attr('fill',lineColor).attr('stroke-opacity','0').attr('stroke','3').attr('stroke-width','3px');
 
     svg.append("rect")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + 0 + "," + 0 + ")")
         .attr("class", "overlay")
         .attr("width", width)
         .attr("height", height)
@@ -216,8 +203,10 @@ console.log(Date.parse('2018-04-09T00:00:00.000Z'));
           d = x0 - x1(d0.lt) > x1(d1.lt) - x0 ? d1 : d0;
       focus.attr("transform", "translate(" + (x(d.x)+x.bandwidth()/2) + "," + y1(d.y) + ")");
       focus.select("text").text(function() { return d.y; });
-      focus.select(".x-hover-line").attr("y2", height - y1(d.y));
-      focus.select(".y-hover-line").attr("x2", width + width);
+      focus.select(".x-hover-rect").attr("x", -7);
+      focus.select(".x-hover-rect").attr("y", - y1(d.y));
+      focus.select(".y-hover-line").attr("x2", width);
+      focus.select(".y-hover-line").attr("x1", -(x(d.x)+x.bandwidth()/2));
     }		    
 	})
 

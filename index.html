@@ -81,6 +81,9 @@ p:empty{
 	box-sizing: border-box;
 }
 
+#priced_data{
+	color: #bcb2c2;
+}
 .one-forth span,#arrow_svg{	
 	visibility: hidden;
 }
@@ -151,7 +154,7 @@ p:empty{
 				</div>
 				<div class="one-forth" style="min-width: 170px">
 					<p style="color: #b7acbd">Implied Price</p>
-					<span id="implied_price">$9,613.61</span>
+					<span id="implied_price">$9,613.61</span><span id="priced_data"></span>
 				</div>
 				<div class="one-forth" style="position:relative; padding-right: 30px;">
 					<p id="undevalued_label" style="color: #b7acbd">Undervalued</p>
@@ -363,7 +366,10 @@ p:empty{
       d3.select('#current_price').html('$' + formatSuffixDecimal2(d.p));
       d3.select('#current_price').style("visibility" ,"visible");
       d3.select('#arrow_svg').style("visibility" ,"visible");
-      d3.select('#implied_price').html('$' + formatSuffixDecimal2(d.y) + " ( "+timeFormat1(d.lt) + " )");      
+      d3.select('#implied_price').html('$' + formatSuffixDecimal2(d.y));      
+      d3.select('#implied_price').html('$' + formatSuffixDecimal2(d.y));      
+      d3.select('#priced_data').html(" ( "+timeFormat1(d.lt) + " )");      
+      d3.select('#priced_data').style("visibility","visible");
       d3.select('#implied_price').style("visibility","visible");
       d3.select('#undervalued_value').html(d.z + '%');
       d3.select('#undevalued_label').html(function(){

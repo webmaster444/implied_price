@@ -93,15 +93,9 @@ p:empty{
 	text-align: right;
 	min-width: 90px;
 }
-.overvalued{
-	color: #49d58b;
-}
-.undervalued{
-	color: #bc3241;
-}
 #v_seperator{
-    background: #dbd6df;
-    width: 2px;
+    background: #e0e0e0;
+    width: 1px;
     content: "";
     display: block;
     position: absolute;
@@ -110,16 +104,13 @@ p:empty{
     right: 0;
     min-height: 40px;
 }
-#current_price{
-	color: #c0b7c6;
-}
 </style>
 <body>
 	<div id="wrapper">		
 		<div id="chart_wrapper">
 			<div id="legend_wrapper">
 				<div class="one-forth">
-					<p style="color: #b7acbd">Current Price</p>
+					<p>Current Price</p>
 					<span id="current_price">$9,613.61</span>
 <svg id="arrow_svg" width="30px" height="10px" viewBox="0 0 30 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 47 (45396) - http://www.bohemiancoding.com/sketch -->
@@ -150,11 +141,11 @@ p:empty{
 </svg>
 				</div>
 				<div class="one-forth" style="min-width: 170px">
-					<p style="color: #b7acbd">Implied Price</p>
+					<p>Implied Price</p>
 					<span id="implied_price">$9,613.61</span>
 				</div>
 				<div class="one-forth" style="position:relative; padding-right: 30px;">
-					<p id="undevalued_label" style="color: #b7acbd">Undervalued</p>
+					<p id="undevalued_label">Undervalued</p>
 					<span id="undervalued_value">20.33%</span>
 					<div id="v_seperator"></div>
 				</div>
@@ -174,7 +165,7 @@ p:empty{
         </g>
     </g>
 </svg>
-					<span style="visibility: visible;margin-left: 15px;color:#bc3241;">Implied Price</span></p>
+					<span style="visibility: visible;margin-left: 15px;">Implied Price</span></p>
 				</div>
 			</div>
 			<div id="chart_container"></div>
@@ -212,7 +203,7 @@ p:empty{
 	// var centerLine = d3.axisTop(center).ticks(0).tickSize(0);
 
 	var bisectDate = d3.bisector(function(d) { return d.lt; }).left;
-	
+
 	// d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
 	d3.json("data2.json", function(error, data) {
 		data = data.slice(data.length - 125, data.length );
@@ -233,17 +224,6 @@ p:empty{
 		x.domain(data.map(function(d) { return d.x; }));	
 		y.domain([y_min, y_max]);
 		
-			// custom invert function
-	x.invert = (function(){
-	    var domain = x.domain()
-	    var range = x.range()
-	    var scale = d3.scaleQuantize().domain(range).range(domain)
-
-	    return function(x3){
-	        return scale(x3)
-	    }
-	})();
-
 		var y1_min = d3.min(data,function(d){return d.y});
 		var y1_max = d3.max(data,function(d){return d.y});
 
@@ -334,26 +314,13 @@ p:empty{
         .on("mouseout", function() { focus.style("display", "none"); })
         .on("mousemove", mousemove);
        
-	function mousemove() {           	
-         var xy = d3.mouse(this)[0];
-         var x0 = x.invert(xy);         
-
-         
-         
-      // var x0 = x1.invert(d3.mouse(this)[0]);
-      var i = data.findIndex(function(item, i){
-  		return item.x === x0
-		});
-      // console.log(data);
-      // var i = bisectDate(data, x0, 1);
-
-      if(i>=1){
-      	d0 = data[i - 1],
-      	d1 = data[i],
-      	d = x0 - x(d0.x) > x(d1.x) - x0 ? d1 : d0;          
-      } 
-
-          
+    function mousemove() {           	    	
+      var x0 = x1.invert(d3.mouse(this)[0]);
+      
+      var i = bisectDate(data, x0, 1),
+          d0 = data[i - 1],
+          d1 = data[i],
+          d = x0 - x1(d0.lt) > x1(d1.lt) - x0 ? d1 : d0;
       focus.attr("transform", "translate(" + (x(d.x)+x.bandwidth()/2) + "," + y1(d.y) + ")");
       focus.select("text").text(function() { return d.y; });
       focus.select(".x-hover-rect").attr("x", -9);
@@ -369,12 +336,6 @@ p:empty{
       d3.select('#undevalued_label').html(function(){
       	if(d.z > 0) return "Overvalued";
       	return "Undervalued";
-      })
-      d3.select('#undervalued_value').attr('class',function(){
-      	if(d.z > 0){
-      		return 'undervalued';
-      	}
-      	return 'overvalued';
       })
       d3.select('#undervalued_value').style("visibility","visible");      
     }		    

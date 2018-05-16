@@ -84,9 +84,6 @@ p:empty{
 #priced_data{
 	color: #bcb2c2;
 }
-.one-forth span,#arrow_svg{	
-	visibility: hidden;
-}
 
 #undervalued_value{
 	display: block;
@@ -177,7 +174,7 @@ p:empty{
         </g>
     </g>
 </svg>
-					<span style="visibility: visible;margin-left: 15px;color:#442C8C;">Implied Price</span></p>
+					<span style="margin-left: 15px;color:#442C8C;">Implied Price</span></p>
 				</div>
 			</div>
 			<div id="chart_container"></div>
@@ -229,6 +226,23 @@ p:empty{
 			d.z = + d.z;	
 			d.p = + d.p;				
 		})
+
+		var tmp = data[data.length-1];
+		d3.select('#current_price').html('$' + formatSuffixDecimal2(tmp.p));
+      	d3.select('#implied_price').html('$' + formatSuffixDecimal2(tmp.y));      
+      	d3.select('#implied_price').html('$' + formatSuffixDecimal2(tmp.y));      
+      	d3.select('#priced_data').html(" ( "+timeFormat1(tmp.lt) + " )");      
+      	d3.select('#undervalued_value').html(tmp.z + '%');
+      	d3.select('#undevalued_label').html(function(){
+      		if(tmp.z > 0) return "Undervalued";
+      		return "Overvalued";
+      	})
+      	d3.select('#undervalued_value').attr('class',function(){
+      		if(tmp.z > 0){
+      			return 'overvalued';
+      		}
+      		return 'undervalued';
+      	})      
 
 		var y_min = d3.min(data, function(d) { return d.z -5});
 		var y_max = d3.max(data, function(d) { return d.z +5});
@@ -364,13 +378,9 @@ p:empty{
       focus.select(".y-hover-line").attr("x2", width);
       focus.select(".y-hover-line").attr("x1", -(x(d.x)+x.bandwidth()/2));      
       d3.select('#current_price').html('$' + formatSuffixDecimal2(d.p));
-      d3.select('#current_price').style("visibility" ,"visible");
-      d3.select('#arrow_svg').style("visibility" ,"visible");
       d3.select('#implied_price').html('$' + formatSuffixDecimal2(d.y));      
       d3.select('#implied_price').html('$' + formatSuffixDecimal2(d.y));      
       d3.select('#priced_data').html(" ( "+timeFormat1(d.lt) + " )");      
-      d3.select('#priced_data').style("visibility","visible");
-      d3.select('#implied_price').style("visibility","visible");
       d3.select('#undervalued_value').html(d.z + '%');
       d3.select('#undevalued_label').html(function(){
       	if(d.z > 0) return "Undervalued";
@@ -381,8 +391,7 @@ p:empty{
       		return 'overvalued';
       	}
       	return 'undervalued';
-      })
-      d3.select('#undervalued_value').style("visibility","visible");      
+      })      
     }		    
 	})
 	function make_y_gridlines() {		

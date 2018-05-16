@@ -36,6 +36,9 @@ path.domain{
 fill:#190430;
 	opacity: .1;	
 }
+.tick text{
+	font-size: 15px;
+}
 .positive_bar{	
 	opacity: .4;
 }
@@ -233,7 +236,7 @@ p:empty{
 			.x(function(d) { return x(d.x)+x.bandwidth()/2})
 			.y(function(d) { return y1(d.y); });
 
-		var svg = d3.select("body").append("svg")
+		var svg = d3.select("#chart_container").append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
 			.append("g")
@@ -241,7 +244,7 @@ p:empty{
 
 		svg.append("g")
 			.attr("class", "x axis")
-			.attr("transform", "translate(0," + height + ")")
+			.attr("transform", "translate(0," + height + ")")			
 			.call(xAxis);
 
 		svg.append("g")

@@ -373,14 +373,14 @@ p:empty{
       d3.select('#implied_price').style("visibility","visible");
       d3.select('#undervalued_value').html(d.z + '%');
       d3.select('#undevalued_label').html(function(){
-      	if(d.z > 0) return "Overvalued";
-      	return "Undervalued";
+      	if(d.z > 0) return "Undervalued";
+      	return "Overvalued";
       })
       d3.select('#undervalued_value').attr('class',function(){
       	if(d.z > 0){
-      		return 'undervalued';
+      		return 'overvalued';
       	}
-      	return 'overvalued';
+      	return 'undervalued';
       })
       d3.select('#undervalued_value').style("visibility","visible");      
     }		    

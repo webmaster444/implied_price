@@ -121,11 +121,15 @@
     #current_price {
         color: #c0b7c6;
     }
+    #junk_section{
+        height: 500px;
+    }
 </style>
 
 <body>
     <div id="wrapper">
-   <div id="chart_wrapper">
+        <div style="height:1500px;width:100%;"></div>
+    <div id="chart_wrapper">
       <div id="legend_wrapper">
          <div class="one-forth">
             <p style="color: #b7acbd">Current Price</p>
@@ -189,10 +193,13 @@
       </div>
       <div id="chart_container"></div>
    </div>
+   <div style="height:300px;width:100%;"></div>
 </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
     <script>
+        var called = 0;
         var positiveColor = '#38e88f';
         var negativeColor = '#be2f3e';
         var lineColor = '#be2f3e';
@@ -226,11 +233,10 @@
             return d.lt;
         }).left;
 
+function drawChart(){
         // d3.json("https://dev.decryptz.com/api/v1/charts/implied_price", function(error, data) {
-        d3.json("data2.json", function(error, data) {
-            // console.log(typeof data);
-            data = data.slice(data.length - 125, data.length);
-            console.log(data);
+        d3.json("data2.json", function(error, data) {            
+            data = data.slice(data.length - 125, data.length);            
             var keys = ['z'];
             data.forEach(function(d) {
                 var y0_positive = 0;
@@ -239,8 +245,7 @@
                 d.x = timeFormat(Date.parse(d.x));
                 d.z = +d.z;
                 d.p = +d.p;
-            })
-            console.log(data);
+            })            
             var siFormat = function(d) {
                 if (d !== "01")
                     return d;
@@ -443,19 +448,20 @@
                 })
             }
         })
-
-    function transition(path) {
-        path.transition()
-            .duration(2000)
-            .attrTween("stroke-dasharray", tweenDash);
     }
 
-    function tweenDash() {
-        var l = this.getTotalLength(),
-            i = d3.interpolateString("0," + l, l + "," + l);
-        return function (t) { return i(t); };
-    }
-    
+        function transition(path) {
+            path.transition()
+                .duration(2000)
+                .attrTween("stroke-dasharray", tweenDash);
+        }
+
+        function tweenDash() {
+            var l = this.getTotalLength(),
+                i = d3.interpolateString("0," + l, l + "," + l);
+            return function (t) { return i(t); };
+        }
+
         function make_y_gridlines() {
             return d3.axisLeft(y)
                 .ticks(5)
@@ -485,4 +491,15 @@
                 }
             });
         }
+        
+        $(window).scroll(function (event) {
+            var conTop = $("#chart_wrapper").offset().top;
+            var scrollBottom = $(window).scrollTop() + $(window).height();
+            if(scrollBottom > conTop){
+                if(called==0){
+                    drawChart();
+                    called++;
+                }
+            }
+        });
     </script>
